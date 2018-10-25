@@ -30,7 +30,7 @@ public class Task {
   private int seqOrder;
   
   @ElementCollection(targetClass=Milestone.class)
-  @OneToMany(mappedBy="taskId")
+  @OneToMany(cascade=CascadeType.ALL, mappedBy="taskId")
   private List<Milestone> milestones;
   
   public int getTaskId() {
