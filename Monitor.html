@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>TestEnvironment</title>
+<script src="/hintDropper.js"></script>
+<script>
+	var mileStones = [];
+	function loadMilestones(){
+		
+		var cookies = document.cookie.split("; ");
+		var testId = "";
+		var taskId = "";
+		
+		for(i = 0; i < cookies.length; i++) {
+			if(testId != "" && taskId != "") {
+				break;
+			} else {
+				if(cookies[i].startsWith("testId")) {
+					testId =cookies[i].split("=")[1];
+				}
+				if(cookies[i].startsWith("taskCounter")) {
+					taskId = cookies[i].split("=")[1];
+				}
+			}
+		}
+		
+		var respText = "";
+		var request = new XMLHttpRequest();  
+	    request.onreadystatechange = function() {
+	        if (this.readyState == 4 && this.status == 200) {
+	        	document.getElementById("test").innerHTML  =
+	            this.responseText;
+	        	var buf = this.responseText.split(";");
+	        	for(i = 0; i < buf.length; i++) {
+	    			mileStones[i]=buf[i];
+	    		}
+	       }
+	    };
+	    
+		request.open("GET","http://localhost:8330/Hintservice4/hints/hint/" + testId + "/" + taskId,true);
+		request.send();
+		
+	}
+	
+	function access(){
+		var iframe = window.document.getElementById("monitor");
+		var idoc = iframe.contentDocument;
+		loadMilestones();
+		iframe.contentDocument.addEventListener("click",function(event){
+			var ipar = iframe.contentWindow;
+			var el = event.target;
+			var info = event.type + " " + event.target.tagName + " " + indexOf(el, idoc.getElementsByTagName(event.target.tagName)) + " " + iframe.contentDocument.URL;
+			ipar.parent.postMessage(info, "http://localhost:8330/hi.html");
+		});
+		
+	}
+	
+	var totalTime = 0;
+	var time = setInterval( clock,1000);
+	var stopped = false; 
+	var hintTimer = window.setInterval(displayHint,settings.hintTime);
+	
+		
+
+	function clock() {
+		totalTime++;
+		var timeEl = window.document.getElementById("time");
+		timeEl.innerHTML = totalTime;
+	}
+	
+	
+	
+	
+
+	function receiveMessage(event) {
+		var text = window.document.getElementById("res").innerHTML;
+		if(!stopped) {
+			window.document.getElementById("res").innerHTML =  text + "</br>" + 
+			event.data + " " + totalTime;
+			recentActivity = event.data; 
+			document.getElementById("recent").innerHTML = recentActivity;
+			loadMilestones();
+			if( recentActivity == this.mileStones[mileStones.length -1]) {
+				trailDone = true;
+				clearInterval(hintTimer);  
+				document.getElementById("hint").style.display = "none";
+				sendData();
+				document.cookie = "finishStatus=completed";
+				window.location.replace("http://localhost:8330/PTT2/finish");
+			} else {
+				if( recentActivity == this.mileStones[currentStage]) {
+				currentStage++;
+				clearInterval(hintTimer);
+				hintTimer = setInterval(displayHint,settings.hintTime);
+				document.getElementById("hint").style.display = "none";
+				} 
+			}
+		}
+	}
+	
+	function cancelTask() {
+		var text = window.document.getElementById("res").innerHTML;	
+		window.document.getElementById("res").innerHTML =  text + "\r\n" + 
+		"cancel " + totalTime;
+		document.cookie = "finishStatus=cancelled";
+		sendData();
+		window.location.replace("http://localhost:8330/PTT2/finish");
+
+	}
+	
+	window.addEventListener("message", receiveMessage);
+	
+	function stop(){
+		clearInterval(time);
+		document.getElementById("pause-btn").innerHTML = "continue";
+		document.getElementById("pause-btn").setAttribute("onclick","cont()");
+		stopped = true; 
+	}
+	
+	function cont(){
+		time = setInterval(clock, 1000);
+		document.getElementById("pause-btn").innerHTML = "pause";
+		document.getElementById("pause-btn").setAttribute("onclick","stop()");
+		stopped = false;
+		
+	}
+	
+	function displayHint(){
+		if(!checkMilestones() && !trailDone) {
+			document.getElementById("hint").style.display = "block";
+		}
+	}
+	
+	function giveHint(){
+		alert(this.mileStones[currentStage]);
+	}
+	
+	function sendData(){
+	var request = new XMLHttpRequest(); 
+	request.open("POST","http://localhost:8330/PTT2/rest/data/addClickPath",false);
+	request.send(document.getElementById("res").innerHTML);
+	}
+	
+	function indexOf( element, nList) {
+		
+		var res = 0;
+		for(i = 0; i < nList.length; i++){
+			if(nList[i].isEqualNode(element)){
+				res = i;
+			} 
+		}
+		return res;
+	}
+	
+	
+</script>
+</head>
+<body>
+<iframe id="monitor" src="http://localhost:8330/html-files/hi.html" onload="access()" height="1000" width="1000">
+</iframe>
+<button id="pause-btn" onclick="stop()">pause</button>
+<button id="cancel" onclick="cancelTask()">cancel</button>
+<button id="hint" onclick="giveHint()" style="display:none">hint</button>
+<p id="recent"></p>
+<p id="time">0</p>
+<p id="res" style="overflow: scroll; height:100px; width:300px;"></p>
+<p id="test"></p>
+<p>hi</p>
+
+</body>
+</html>
