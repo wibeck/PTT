@@ -89,6 +89,7 @@ public class TaskOverviewServlet extends HttpServlet{
       } else {  //if there are tasks left, continue here
         redUrl = "http://localhost:8330/html-files/taskOverview.html";
         t = (Task) l.get(0);
+        session.setAttribute("taskType", t.getType());
       }
        
       tx.commit();

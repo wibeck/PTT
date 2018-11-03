@@ -151,6 +151,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       session.setAttribute("sessionID", testsession.getSessionID());
       session.setAttribute("testId", Integer.parseInt(test)); //set test Id to this session
       session.setAttribute("testerId",tester.getSessionID()); //set a unique Identifier for each tester by counting the participants that have already taken part
+    
     } catch (SecurityException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
