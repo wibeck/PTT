@@ -130,31 +130,23 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       TestSession testsession = new TestSession();
       Tester tester = new Tester();
       Query q = em.createQuery("SELECT t FROM Test t WHERE testId= :tId");
-      Query q1 = em.createQuery("SELECT t FROM Tester t");
-      Query q2 = em.createQuery("SELECT t FROM TestSession t");
-      
       q.setParameter("tId", Integer.parseInt(test));
-      int testerIndex = q1.getResultList().size() + 1;
-      int sessionIndex = q2.getResultList().size() + 1;
-      
-      
       Test tst = (Test) q.getResultList().get(0);
-      testsession.setSessionID(sessionIndex);
+      
       testsession.setStartDateTime(LocalDateTime.now().toString());
       testsession.setTestId(tst);
-      
-      
+
       em.persist(testsession);
       
-      tester.setTesterId(testerIndex);
-      tester.setSessionID(testsession);
       
+      tester.setSessionID(testsession);
+      testsession.setTesterId(tester);
       
       em.persist(tester);
       tx.commit();
-      session.setAttribute("sessionID", sessionIndex);
+      session.setAttribute("sessionID", testsession.getSessionID());
       session.setAttribute("testId", Integer.parseInt(test)); //set test Id to this session
-      session.setAttribute("testerId",testerIndex); //set a unique Identifier for each tester by counting the participants that have already taken part
+      session.setAttribute("testerId",tester.getSessionID()); //set a unique Identifier for each tester by counting the participants that have already taken part
     } catch (SecurityException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

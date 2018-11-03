@@ -81,7 +81,7 @@ public class TaskOverviewServlet extends HttpServlet{
       tx.begin();
       Query q = em.createQuery("SELECT p FROM Task p WHERE taskId= :taskCounter");
       q.setParameter("taskCounter", Integer.parseInt((String)session.getAttribute("taskCounter")));
-      List<Object> l = q.getResultList();
+      List<Task> l = q.getResultList();
       Task t = null;
       String redUrl = "";
       if(l.isEmpty()) { //if there are no tasks left, redirect to the last servlet of the cycle

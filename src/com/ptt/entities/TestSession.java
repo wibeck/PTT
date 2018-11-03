@@ -7,6 +7,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
@@ -21,6 +23,7 @@ public class TestSession {
 
  
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private int sessionID;
   private String startDateTime;
   

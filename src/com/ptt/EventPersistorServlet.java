@@ -138,13 +138,11 @@ public class EventPersistorServlet extends HttpServlet {
     res.setElementIndex(Integer.parseInt(details[2]));
     res.setUrl(details[3]);
     res.setTime(Integer.parseInt(details[4]));
-    res.setEventId(numOfEvents);
     res.setSeqOrder(seqOrder);
     res.setTaskId(task);
     res.setSessionID(tSession);
     
     seqOrder++;
-    numOfEvents++;
     return res;
   }
   

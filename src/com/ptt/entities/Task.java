@@ -7,6 +7,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -19,15 +21,27 @@ import javax.persistence.Table;
 @Table(name="tasks")
 public class Task {
   
-
+  public enum TaskType {
+    INPUT, RETRIEVAL;
+    public static String toString(TaskType t) {
+      String res = "";
+      switch(t){
+        case INPUT: res = "INPUT"; break;
+        case RETRIEVAL: res = "RETRIEVAL";break;
+      }
+      return res;
+    }
+  }
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="testId", referencedColumnName="testId")
   private Test testId;
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private int taskId;
   private String entryPoint;
   private String description;
   private int seqOrder;
+  private String type;
   
   @ElementCollection(targetClass=Milestone.class)
   @OneToMany(cascade=CascadeType.ALL, mappedBy="taskId")
@@ -63,6 +77,13 @@ public class Task {
   public void setSeqOrder(int seqOrder) {
     this.seqOrder = seqOrder;
   }
+  public String getType() {
+    return type;
+  }
+  public void setType(TaskType type) {
+    this.type = TaskType.toString(type);
+  }
+  
   
   
 }
