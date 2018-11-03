@@ -58,7 +58,8 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       tx.begin();
       setIndizes(request); //Generates tester- and testsession-Ids and sets Attributes for the HttpSession
     response.setContentType("text/html");
-    AnotherBeanRemote aB = (AnotherBeanRemote) getContext().lookup("ejb:/OwnEJB3//AnotherBean!com.own.AnotherBeanRemote?stateful");
+    AnotherBeanRemote aB = (AnotherBeanRemote) getContext().lookup("ejb:/OwnEJB3//AnotherBean!"
+        + "com.own.AnotherBeanRemote?stateful");
     aB.setProperties(1, 1, Integer.parseInt(test));
     
       ServletOutputStream out = response.getOutputStream();
@@ -74,8 +75,10 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       }
       render += ""+ request.getSession().getAttribute("testId");
       Document doc = Jsoup.parse(render);
-      doc.getElementById("demographicForm").append("<input type=\"radio\" name=\"fuck\" value=\"bitch\"> Wut?<br>"
-          + "<input type=\"submit\" value=\"let's go!\">"); //Content to be appended is stemming from Database later
+      doc.getElementById("demographicForm").append("<input type=\"radio\""
+          + " name=\"fuck\" value=\"bitch\"> Wut?<br>"
+          + "<input type=\"submit\" value=\"let's go!\">"); 
+      //Content to be appended is stemming from Database later
       s.close();
       out.write(doc.html().getBytes());
       
@@ -109,7 +112,8 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   private static Context getContext() {
     InitialContext context = null;
     Properties jndiProperties = new Properties();
-    jndiProperties.put("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
+    jndiProperties.put("java.naming.factory.initial","org.jboss"
+        + ".naming.remote.client.InitialContextFactory");
     jndiProperties.put(Context.PROVIDER_URL, "http-remoting://localhost:8080/");
     jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
     try {

@@ -7,34 +7,36 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-@IdClass(MilestoneKey.class)
+
 @Entity
 @Table(name="milestones")
 public class Milestone {
   
   @Id
+  private int milestoneIndex;
   private int milestoneId;
   
-  @Id
+  @ManyToOne
+  @JoinColumn(name="testId")
+  private Test testId;
+  
+  
   @ManyToOne
   @JoinColumn(name="taskId")
   private Task taskId;
+  
+  private int seqOrder;
   
   private String url;
   private String element;
   private String elementIndex;
   private String event;
+  
   public int getMilestoneId() {
     return milestoneId;
   }
   public void setMilestoneId(int milestoneId) {
     this.milestoneId = milestoneId;
-  }
-  public Task getTaskId() {
-    return taskId;
-  }
-  public void setTaskId(Task taskId) {
-    this.taskId = taskId;
   }
   public String getUrl() {
     return url;
@@ -59,6 +61,30 @@ public class Milestone {
   }
   public void setEvent(String event) {
     this.event = event;
+  }
+  public int getMilestoneIndex() {
+    return milestoneIndex;
+  }
+  public void setMilestoneIndex(int milestoneIndex) {
+    this.milestoneIndex = milestoneIndex;
+  }
+  public Test getTestId() {
+    return testId;
+  }
+  public void setTestId(Test testId) {
+    this.testId = testId;
+  }
+  public Task getTaskId() {
+    return taskId;
+  }
+  public void setTaskId(Task task) {
+    this.taskId = task;
+  }
+  public int getSeqOrder() {
+    return seqOrder;
+  }
+  public void setSeqOrder(int seqOrder) {
+    this.seqOrder = seqOrder;
   }
   
   
