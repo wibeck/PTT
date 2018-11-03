@@ -58,9 +58,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       tx.begin();
       setIndizes(request); //Generates tester- and testsession-Ids and sets Attributes for the HttpSession
     response.setContentType("text/html");
-    AnotherBeanRemote aB = (AnotherBeanRemote) getContext().lookup("ejb:/OwnEJB3//AnotherBean!"
-        + "com.own.AnotherBeanRemote?stateful");
-    aB.setProperties(1, 1, Integer.parseInt(test));
+   ;
     
       ServletOutputStream out = response.getOutputStream();
       
@@ -88,10 +86,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } catch (NamingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SecurityException e) {
+    }  catch (SecurityException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IllegalStateException e) {
