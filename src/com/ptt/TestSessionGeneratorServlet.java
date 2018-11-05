@@ -73,9 +73,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       }
       render += ""+ request.getSession().getAttribute("testId");
       Document doc = Jsoup.parse(render);
-      doc.getElementById("demographicForm").append("<input type=\"radio\""
-          + " name=\"fuck\" value=\"bitch\"> Wut?<br>"
-          + "<input type=\"submit\" value=\"let's go!\">"); 
+      
       //Content to be appended is stemming from Database later
       s.close();
       out.write(doc.html().getBytes());
@@ -102,22 +100,6 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     
     
     
-  }
-  
-  private static Context getContext() {
-    InitialContext context = null;
-    Properties jndiProperties = new Properties();
-    jndiProperties.put("java.naming.factory.initial","org.jboss"
-        + ".naming.remote.client.InitialContextFactory");
-    jndiProperties.put(Context.PROVIDER_URL, "http-remoting://localhost:8080/");
-    jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-    try {
-      context = new InitialContext(jndiProperties);
-    } catch (NamingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return context;
   }
   
   private void setIndizes(HttpServletRequest request) {

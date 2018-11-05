@@ -46,8 +46,7 @@ public class EventPersistorServlet extends HttpServlet {
   private Test  test;
   private TestSession tSession;
   private Task task;
-  private int numOfEvents;
-  private int seqOrder = 1;
+  private int seqOrder;
   
   public void doPost(HttpServletRequest request, HttpServletResponse response ) {
     session = request.getSession();
@@ -70,21 +69,23 @@ public class EventPersistorServlet extends HttpServlet {
       test = getTest((int)session.getAttribute("testId"));
       tSession = getTestSession((int)session.getAttribute("sessionID"));
       task = getTask(Integer.parseInt((String)session.getAttribute("taskCounter")), test);
-      numOfEvents = em.createQuery("SELECT t FROM EventLog t").getResultList().size() + 1;
-      int seqOrder = 1;
+      
+      seqOrder = 1;
       
       
       
       //parse and persist event-entries
      
       for(String event: events) {
+        
         if(event.equals("")) {
           break;
         } else {
           
           em.persist(parseToEventLog(event));
+          
         }
-        
+        seqOrder++;
         
       }
       
@@ -142,7 +143,7 @@ public class EventPersistorServlet extends HttpServlet {
     res.setTaskId(task);
     res.setSessionID(tSession);
     
-    seqOrder++;
+   
     return res;
   }
   

@@ -65,10 +65,12 @@ public class MonitorGeneratorServlet extends HttpServlet {
       String render = "";
       response.addCookie(new Cookie("testId",request.getSession().getAttribute("testId").toString()));
       response.addCookie(new Cookie("taskCounter",request.getSession().getAttribute("taskCounter").toString()));
+      response.addCookie(new Cookie("taskType",request.getSession().getAttribute("taskType").toString() ));
       while(s.hasNextLine()) {
         render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
       }
       conn.close();
+      s.close();
       Document doc = Jsoup.parse(render);
       doc.getElementById("monitor").attr("src",entryPoint);
       out.write(doc.html().getBytes());
@@ -89,7 +91,7 @@ public class MonitorGeneratorServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		
 		doGet(request, response);
 	}
 
