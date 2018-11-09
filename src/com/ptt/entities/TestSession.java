@@ -37,7 +37,7 @@ public class TestSession {
   private int status;
   
   @ElementCollection(targetClass=EventLog.class)
-  @OneToMany(mappedBy="sessionID")
+  @OneToMany(cascade=CascadeType.ALL, mappedBy="sessionID")
   List<EventLog> logs = new LinkedList<>();
   
   

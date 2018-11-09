@@ -50,53 +50,33 @@ public class EventPersistorServlet extends HttpServlet {
   
   public void doPost(HttpServletRequest request, HttpServletResponse response ) {
     session = request.getSession();
-    //obtain request-Body
-    String reqBody = readRequestBody(request);
     
+    String reqBody = readRequestBody(request);
+    Test tst = (Test) request.getSession().getAttribute("testId");
     try {
-      
-      response.setHeader("resp", "whatup");
-      FileOutputStream out1 = new FileOutputStream("C://Users//Willi//Desktop/test1.txt");
+
       response.setContentType("text/html");
-      out1.write(reqBody.getBytes());
-      out1.close();
       
       tx.begin();
       String[] events = reqBody.split("<br>");
       
-      
-      //initialize all necessary constants
-      test = getTest((int)session.getAttribute("testId"));
-      tSession = getTestSession((int)session.getAttribute("sessionID"));
+      test = (Test) session.getAttribute("testId");
+      tSession =(TestSession) session.getAttribute("sessionID");
       task = getTask(Integer.parseInt((String)session.getAttribute("taskCounter")), test);
       
       seqOrder = 1;
       
-      
-      
-      //parse and persist event-entries
-     
       for(String event: events) {
         
         if(event.equals("")) {
           break;
-        } else {
-          
-          em.persist(parseToEventLog(event));
-          
+        } else {      
+          em.persist(parseToEventLog(event));       
         }
-        seqOrder++;
-        
+        seqOrder++;      
       }
-      
-     
       tx.commit();
       
-    
-     
-       
-      
-     
     } catch (NotSupportedException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
@@ -116,9 +96,6 @@ public class EventPersistorServlet extends HttpServlet {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (HeuristicRollbackException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (NullPointerException e) {
@@ -161,20 +138,6 @@ public class EventPersistorServlet extends HttpServlet {
     return requestBody;
   }
   
-  private Test getTest(int testId) {
-    Query q = em.createQuery("SELECT t FROM Test t WHERE testId = :tId");
-    q.setParameter("tId", testId);
-    if(q.getResultList().isEmpty()) {
-      throw new NullPointerException("no result from query; " + testId);
-    }
-    return (Test) q.getResultList().get(0);
-  }
-  
-  private TestSession getTestSession(int sessionId) {
-    Query q = em.createQuery("SELECT t FROM TestSession t WHERE sessionID = :sId");
-    q.setParameter("sId", sessionId);
-    return (TestSession) q.getResultList().get(0);
-  }
   
   private Task getTask(int taskId, Test testId) {
     Query q = em.createQuery("SELECT t FROM Task t WHERE taskId = :taId AND testId = :tId");

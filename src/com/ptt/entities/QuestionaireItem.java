@@ -20,7 +20,6 @@ public class QuestionaireItem {
   @JoinColumn(name="testId", referencedColumnName="testId")
   private Test testId;
   private int location;
-  private String type;
   private String name;
   private String html;
   private String style;
@@ -44,12 +43,6 @@ public class QuestionaireItem {
   }
   public void setLocation(int location) {
     this.location = location;
-  }
-  public String getType() {
-    return type;
-  }
-  public void setType(String type) {
-    this.type = type;
   }
   public String getName() {
     return name;

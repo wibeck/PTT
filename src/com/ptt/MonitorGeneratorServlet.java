@@ -26,6 +26,8 @@ import javax.sql.DataSource;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import com.ptt.entities.Test;
+
 /**
  * Servlet implementation class MonitorGeneratorServlet
  */
@@ -44,14 +46,18 @@ public class MonitorGeneratorServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+	throws ServletException, IOException {
+	  Test tst = (Test) request.getSession().getAttribute("testId");
 	  try {
 	    Context context = new InitialContext();
       DataSource ds = (DataSource) context.lookup("java:/MySqlDS");
       Connection conn = ds.getConnection();
-  	  PreparedStatement pStmt = conn.prepareStatement("select entryPoint from tasks where testId=? and taskId=?");
-      pStmt.setInt(1, Integer.parseInt(request.getSession().getAttribute("testId").toString()));
-      pStmt.setInt(2, Integer.parseInt(request.getSession().getAttribute("taskCounter").toString()));
+  	  PreparedStatement pStmt = conn.prepareStatement("select entryPoint "
+  	      + "from tasks where testId=? and seqOrder=?");
+      pStmt.setInt(1, tst.getTestId());
+      pStmt.setInt(2, Integer.parseInt(
+          request.getSession().getAttribute("taskCounter").toString()));
   	  ResultSet res = pStmt.executeQuery();
       res.next();
       String entryPoint = res.getString("entryPoint");
@@ -63,9 +69,13 @@ public class MonitorGeneratorServlet extends HttpServlet {
       conn1.connect();
       Scanner s = new Scanner(url.openStream());
       String render = "";
-      response.addCookie(new Cookie("testId",request.getSession().getAttribute("testId").toString()));
-      response.addCookie(new Cookie("taskCounter",request.getSession().getAttribute("taskCounter").toString()));
-      response.addCookie(new Cookie("taskType",request.getSession().getAttribute("taskType").toString() ));
+      
+      response.addCookie(new Cookie("testId",
+          "" + tst.getTestId()));
+      response.addCookie(new Cookie("taskCounter",
+          request.getSession().getAttribute("taskCounter").toString()));
+      response.addCookie(new Cookie("taskType",
+          request.getSession().getAttribute("taskType").toString() ));
       while(s.hasNextLine()) {
         render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
       }

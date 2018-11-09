@@ -15,17 +15,29 @@ import javax.persistence.Table;
 public class QuestionaireAnswer implements Serializable {
   
   @Id
-  @JoinColumn(name="testerId")
+  private int answerId;
+  
+  @JoinColumn(name="userId", referencedColumnName="testerId")
   @ManyToOne
   private Tester userId;
   
 
-  @JoinColumn(name="itemId")
+ 
   @ManyToOne
+  @JoinColumn(name="itemId")
   private QuestionaireItem itemId;
   private String value;
   
   
+  
+  public int getAnswerId() {
+    return answerId;
+  }
+
+  public void setAnswerId(int answerId) {
+    this.answerId = answerId;
+  }
+
   public Tester getUserId() {
     return userId;
   }

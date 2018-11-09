@@ -1,9 +1,14 @@
 package com.ptt;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,8 +29,15 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import com.ptt.entities.QuestionaireAnswer;
+import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Task;
 import com.ptt.entities.TaskKey;
+import com.ptt.entities.Test;
+import com.ptt.entities.Tester;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 
 @WebServlet("/overview")
@@ -53,80 +65,52 @@ import com.ptt.entities.TaskKey;
  */
 public class TaskOverviewServlet extends HttpServlet{
   
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   @PersistenceContext
-  EntityManager em;
+  private EntityManager em;
   @Resource
-  UserTransaction tx;
+  private UserTransaction tx;
+  private Task t = null;
+  private QuestionaireItem qItem = null;
+  private Test tst;
+  private Tester tester;
+  
   
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
-    List<String> list = java.util.Collections.list(session.getAttributeNames());
+    tst = (Test)session.getAttribute("testId");
+    tester = (Tester) session.getAttribute("testerId");
+    
     try {
-      
-      if(!request.getParameterMap().isEmpty()) { //Check if the session has some form-inputs to persist
-        //persist formdata here
-      }
-      
-      if(!list.contains("taskCounter")) {
-        session.setAttribute("taskCounter", "1"); 
-       
-      } else { //task counter to be updated right after finishing the task
-        String tcHelp = (String) session.getAttribute("taskCounter");
-        int tC = Integer.parseInt(tcHelp) + 1;
-        tcHelp = "" + tC;
-        session.setAttribute("taskCounter", tcHelp);
-      }
-      
-
       tx.begin();
-      Query q = em.createQuery("SELECT p FROM Task p WHERE taskId= :taskCounter");
-      q.setParameter("taskCounter", Integer.parseInt((String)session.getAttribute("taskCounter")));
-      List<Task> l = q.getResultList();
-      Task t = null;
-      String redUrl = "";
-      if(l.isEmpty()) { //if there are no tasks left, redirect to the last servlet of the cycle
-        redUrl = "http://localhost:8330/html-files/finishedTest.html";
-      } else {  //if there are tasks left, continue here
-        redUrl = "http://localhost:8330/html-files/taskOverview.html";
-        t = (Task) l.get(0);
-        session.setAttribute("taskType", t.getType());
+      
+      if(!request.getParameterMap().isEmpty()) { 
+        //Check if there are form-inputs to persist from previous (post-task) survey
+        persistFormData(request);
       }
-       
-      tx.commit();
+      
+      String tcHelp = (String) session.getAttribute("taskCounter");
+      int tC = Integer.parseInt(tcHelp) + 1;
+      tcHelp = "" + tC;
+      session.setAttribute("taskCounter", tcHelp);
+      
+      String destination = getDestinationURL(request);
       
       ServletOutputStream out = response.getOutputStream();
       response.setContentType("text/html");
       
-      URL url = new URL(redUrl);
-      URLConnection conn1 = url.openConnection();
-      conn1.connect();
-      Scanner s = new Scanner(url.openStream());
-     
-      String render = "";
-      
-      while(s.hasNextLine()) {
-        render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
-      }
-      
-      Document doc = Jsoup.parse(render);
-      if(redUrl.equals("http://localhost:8330/html-files/taskOverview.html")) {
-        doc.getElementById("taskDescription").append(t.getDescription()); //Content to be appended is stemming from Database later
-      }
-      
+      Document doc = getRenderDocument(destination);
+      tx.commit();
       //conn.close();
       out.write(doc.html().getBytes());
-      
-      
+
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }  /*catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (NamingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }*/ catch (NotSupportedException e) {
+    } catch (NotSupportedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (SystemException e) {
@@ -147,12 +131,94 @@ public class TaskOverviewServlet extends HttpServlet{
     } catch (HeuristicRollbackException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } 
-  
+    }
   }
   
   public void doPost(HttpServletRequest request, HttpServletResponse response) {
     doGet(request, response);
+  }
+  
+  private Document getRenderDocument(String destination) {
+    URL url;
+    Document doc = null;
+    try {
+      url = new URL(destination);
+      URLConnection conn1 = url.openConnection();
+      conn1.connect();
+      Scanner s = new Scanner(url.openStream());
+     
+      String render = "";
+      
+      while(s.hasNextLine()) {
+        render += s.nextLine(); 
+      }
+      
+      doc = Jsoup.parse(render);
+      if(destination.equals("http://localhost:8330/html-files/taskOverview.html")) {
+        doc.getElementById("taskDescription").append(t.getDescription());
+      } else {
+        if(destination.equals("http://localhost:8330/html-files/finishedTest.html")) {
+          doc.getElementById("postTestQuestions").append(qItem.getHtml() 
+              + "<input type=\"submit\" value=\"finish this test!\">" );
+        }
+      }
+    } catch (MalformedURLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    return doc;
+  }
+  
+  private void persistFormData(HttpServletRequest request) {
+    
+    Query query = em.createQuery("SELECT qItem  FROM QuestionaireItem qItem "
+        + "WHERE testId = :tId AND location = :taskCounter"  );
+    query.setParameter("tId", tst);
+    query.setParameter("taskCounter", Integer.parseInt((String) 
+        request.getSession().getAttribute("taskCounter")));
+    qItem = (QuestionaireItem) query.getResultList().get(0);
+    
+    String data ="";    
+    BinaryOperator<String> combiner = (x,y) -> { return x + y;};
+    BiFunction<String, ? super Entry<String, String[]>, String> accumulator = 
+              (x,e) -> {return combiner.apply(x, e.getKey() + ":" + e.getValue()[0] + ";");};
+    String ans = request.getParameterMap().entrySet().stream().reduce(data, accumulator, combiner);
+
+    QuestionaireAnswer qAnswer = new QuestionaireAnswer();
+    qAnswer.setUserId(tester);
+    qAnswer.setValue(ans);
+    qAnswer.setItemId(qItem);
+    em.persist(qAnswer);
+  }
+  
+  private String getDestinationURL(HttpServletRequest request) {
+    HttpSession session = request.getSession();
+    Query q = em.createQuery("SELECT p FROM Task p WHERE seqOrder= :taskCounter AND testId = :tId");
+    q.setParameter("taskCounter", Integer.parseInt((String)session.getAttribute("taskCounter")));
+    q.setParameter("tId", tst);
+    List <Task> l = q.getResultList();
+    String destination = "";
+    
+    //if there are no tasks left, redirect to the last servlet of the cycle
+    if( q.getResultList().isEmpty()) { 
+      destination = "http://localhost:8330/html-files/finishedTest.html";
+      Query q3 = em.createQuery("SELECT u FROM QuestionaireItem u WHERE testId "
+          + "= :tId AND location = :taskCounter");
+      q3.setParameter("tId", tst);
+      q3.setParameter("taskCounter",
+         Integer.parseInt( (String) session.getAttribute("taskCounter") ));
+      
+      qItem = (QuestionaireItem) q3.getSingleResult();
+    } else {  //if there are tasks left, continue here
+      destination = "http://localhost:8330/html-files/taskOverview.html";
+      t = l.get(0);
+      session.setAttribute("taskType", t.getType());
+    }
+    return destination;
   }
   
 }

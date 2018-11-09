@@ -1,6 +1,7 @@
 package com.ptt;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import com.own.AnotherBeanRemote;
+import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Test;
 import com.ptt.entities.TestSession;
 import com.ptt.entities.Tester;
@@ -44,6 +45,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   private EntityManager em;
   @Resource
   private UserTransaction tx;
+  QuestionaireItem qItem ;
   
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     
@@ -52,30 +54,22 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     }
     String test = request.getParameter("testId");
     
-    
-    String renderContent = "";
     try {
       tx.begin();
-      setIndizes(request); //Generates tester- and testsession-Ids and sets Attributes for the HttpSession
-    response.setContentType("text/html");
-   ;
+      Query q1 = em.createQuery("SELECT t FROM Test t WHERE testId= :tId");
+      q1.setParameter("tId", Integer.parseInt(test));
+      Test tst = (Test) q1.getResultList().get(0);
+      setAttributes(request); 
+      response.setContentType("text/html");
+      Query q = em.createQuery("SELECT q FROM QuestionaireItem q WHERE testId =:tId AND location = 0");
+      q.setParameter("tId", tst);
+    
+      qItem = (QuestionaireItem) q.getSingleResult();
     
       ServletOutputStream out = response.getOutputStream();
+
+      Document doc = getRenderDocument();
       
-      URL url = new URL("http://localhost:8330/html-files/intro.html");
-      URLConnection conn = url.openConnection();
-      conn.connect();
-      
-      Scanner s = new Scanner(url.openStream());
-      String render = "";
-      while(s.hasNextLine()) {
-        render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
-      }
-      render += ""+ request.getSession().getAttribute("testId");
-      Document doc = Jsoup.parse(render);
-      
-      //Content to be appended is stemming from Database later
-      s.close();
       out.write(doc.html().getBytes());
       
     } catch (FileNotFoundException e) {
@@ -97,13 +91,13 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } 
-    
-    
-    
+
   }
-  
-  private void setIndizes(HttpServletRequest request) {
-   
+  /**
+   * Generates tester- and testsession - Objects  and stores them as Attributes in the HttpSession
+   * @param request
+   */
+  private void setAttributes(HttpServletRequest request) {
     try {
       String test = request.getParameter("testId");
       HttpSession session = request.getSession();
@@ -125,9 +119,10 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       
       em.persist(tester);
       tx.commit();
-      session.setAttribute("sessionID", testsession.getSessionID());
-      session.setAttribute("testId", Integer.parseInt(test)); //set test Id to this session
-      session.setAttribute("testerId",tester.getSessionID()); //set a unique Identifier for each tester by counting the participants that have already taken part
+      session.setAttribute("sessionID", testsession);
+      session.setAttribute("testId", tst); 
+      session.setAttribute("testerId",tester); 
+      session.setAttribute("taskCounter", "0");
     
     } catch (SecurityException e) {
       // TODO Auto-generated catch block
@@ -148,6 +143,31 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } 
-     
+  }
+  
+  private Document getRenderDocument() {
+    URL url;
+    Document doc = null;
+    try {
+      url = new URL("http://localhost:8330/html-files/intro.html");
+      URLConnection conn = url.openConnection();
+      conn.connect();
+      
+      Scanner s = new Scanner(url.openStream());
+      String render = "";
+      while(s.hasNextLine()) {
+        render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
+      }
+      doc = Jsoup.parse(render);
+      doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
+      s.close();
+    } catch (MalformedURLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return doc;
   }
 }
