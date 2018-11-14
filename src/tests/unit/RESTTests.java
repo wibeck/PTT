@@ -19,7 +19,7 @@ public class RESTTests extends TestCase {
   void hintServiceFunctionTest() {
     URL myUrl;
     try {
-      myUrl = new URL("http://localhost:8330/Hintservice4/hints/hint/1/1");
+      myUrl = new URL("http://localhost:8080/Hintservice4/hints/hint/1/1");
       
       HttpURLConnection con = (HttpURLConnection) myUrl.openConnection();
       con.setRequestMethod("GET");
@@ -29,8 +29,8 @@ public class RESTTests extends TestCase {
       String result = in.readLine();
       in.close();
       System.out.println(result);
-      String expected = "click HTML 0 http://localhost:8330/html-files/hi.html;"
-          + "click BUTTON 1 http://localhost:8330/html-files/hi.html";
+      String expected = "click HTML 0 http://localhost:8080/html-files/hi.html;"
+          + "click BUTTON 1 http://localhost:8080/html-files/hi.html";
       assertEquals( expected,result );
       
     } catch (MalformedURLException e) {
@@ -44,7 +44,7 @@ public class RESTTests extends TestCase {
   
   @Test
   void hintServiceRangeTest() {
-    String url = "http://localhost:8330/Hintservice4/hints/hint/1/4";
+    String url = "http://localhost:8080/Hintservice4/hints/hint/1/4";
     URL myUrl;
     try {
       myUrl = new URL(url);
@@ -76,7 +76,7 @@ public class RESTTests extends TestCase {
   void questionServiceFunctionTest() {
     URL myUrl;
     try {
-      myUrl = new URL("http://localhost:8330/QuestionService/service/get/questions/1/3");
+      myUrl = new URL("http://localhost:8080/QuestionService/service/get/questions/1/3");
       
       HttpURLConnection con = (HttpURLConnection) myUrl.openConnection();
       con.setRequestMethod("GET");
@@ -102,7 +102,7 @@ public class RESTTests extends TestCase {
   }
   
   void questionServiceRangeTest() {
-    String url = "http://localhost:8330/QuestionService/service/get/questions/1/4";
+    String url = "http://localhost:8080/QuestionService/service/get/questions/1/4";
     URL myUrl;
     try {
       myUrl = new URL(url);
@@ -134,7 +134,7 @@ public class RESTTests extends TestCase {
   void answerServiceFunctionTest() {
     URL myUrl;
     try {
-      myUrl = new URL("http://localhost:8330/QuestionService/service/get/answers/1/3");
+      myUrl = new URL("http://localhost:8080/QuestionService/service/get/answers/1/3");
       
       HttpURLConnection con = (HttpURLConnection) myUrl.openConnection();
       con.setRequestMethod("GET");
@@ -157,7 +157,7 @@ public class RESTTests extends TestCase {
   }
   @Test
   void answerServiceRangeTest() {
-    String url = "http://localhost:8330/QuestionService/service/get/answers/1/4";
+    String url = "http://localhost:8080/QuestionService/service/get/answers/1/4";
     URL myUrl;
     try {
       myUrl = new URL(url);
@@ -189,7 +189,7 @@ public class RESTTests extends TestCase {
   void preEventServiceFunctionTest() {
     URL myUrl;
     try {
-      myUrl = new URL("http://localhost:8330/QuestionService/service/get/preEvent/1/3");
+      myUrl = new URL("http://localhost:8080/QuestionService/service/get/preEvent/1/3");
       
       HttpURLConnection con = (HttpURLConnection) myUrl.openConnection();
       con.setRequestMethod("GET");
@@ -199,7 +199,7 @@ public class RESTTests extends TestCase {
       String result = in.readLine();
       in.close();
       System.out.println(result);
-      String expected = "click HTML 0 http://localhost:8330/html-files/hi.html";
+      String expected = "click HTML 0 http://localhost:8080/html-files/hi.html";
       assertEquals( expected,result );
       
     } catch (MalformedURLException e) {
@@ -213,7 +213,7 @@ public class RESTTests extends TestCase {
   
   @Test
   void preEventServiceRangeTest() {
-    String url = "http://localhost:8330/QuestionService/service/get/preEvent/1/4";
+    String url = "http://localhost:8080/QuestionService/service/get/preEvent/1/4";
     URL myUrl;
     try {
       myUrl = new URL(url);

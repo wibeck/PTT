@@ -149,7 +149,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     URL url;
     Document doc = null;
     try {
-      url = new URL("http://localhost:8330/html-files/intro.html");
+      url = new URL("http://localhost:8080/html-files/intro.html");
       URLConnection conn = url.openConnection();
       conn.connect();
       

@@ -61,29 +61,24 @@ public class MonitorGeneratorServlet extends HttpServlet {
   	  ResultSet res = pStmt.executeQuery();
       res.next();
       String entryPoint = res.getString("entryPoint");
-      ServletOutputStream out = response.getOutputStream();
-      response.setContentType("text/html");
       
-      URL url = new URL("http://localhost:8330/html-files/Monitor.html");
-      URLConnection conn1 = url.openConnection();
-      conn1.connect();
-      Scanner s = new Scanner(url.openStream());
-      String render = "";
+      Cookie testId = new Cookie("testId",
+          "" + tst.getTestId());
+      testId.setPath("/");
+      Cookie taskCounter = new Cookie("taskCounter",
+          (String) request.getSession().getAttribute("taskCounter"));
+      taskCounter.setPath("/");
+      Cookie taskType = new Cookie("taskType",
+          request.getSession().getAttribute("taskType").toString() );
+      taskType.setPath("/");
+      Cookie entryP= new Cookie("entryPoint", entryPoint);
+      entryP.setPath("/");
       
-      response.addCookie(new Cookie("testId",
-          "" + tst.getTestId()));
-      response.addCookie(new Cookie("taskCounter",
-          request.getSession().getAttribute("taskCounter").toString()));
-      response.addCookie(new Cookie("taskType",
-          request.getSession().getAttribute("taskType").toString() ));
-      while(s.hasNextLine()) {
-        render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
-      }
-      conn.close();
-      s.close();
-      Document doc = Jsoup.parse(render);
-      doc.getElementById("monitor").attr("src",entryPoint);
-      out.write(doc.html().getBytes());
+      response.addCookie(testId);
+      response.addCookie(taskCounter);
+      response.addCookie(taskType);
+      response.addCookie(entryP);
+      response.sendRedirect("http://localhost:8080/html-files/Monitor.html");
       
   } catch (IOException e) {
     // TODO Auto-generated catch block

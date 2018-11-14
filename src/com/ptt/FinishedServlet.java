@@ -133,7 +133,7 @@ public class FinishedServlet extends HttpServlet {
     private String getRenderString() {
       String render = "";
       try {
-        url = new URL("http://localhost:8330/html-files/theEnd.html");
+        url = new URL("http://localhost:8080/html-files/theEnd.html");
         URLConnection conn1 = url.openConnection();
         conn1.connect();
         Scanner s = new Scanner(url.openStream());

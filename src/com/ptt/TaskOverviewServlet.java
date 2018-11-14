@@ -154,10 +154,10 @@ public class TaskOverviewServlet extends HttpServlet{
       }
       
       doc = Jsoup.parse(render);
-      if(destination.equals("http://localhost:8330/html-files/taskOverview.html")) {
+      if(destination.equals("http://localhost:8080/html-files/taskOverview.html")) {
         doc.getElementById("taskDescription").append(t.getDescription());
       } else {
-        if(destination.equals("http://localhost:8330/html-files/finishedTest.html")) {
+        if(destination.equals("http://localhost:8080/html-files/finishedTest.html")) {
           doc.getElementById("postTestQuestions").append(qItem.getHtml() 
               + "<input type=\"submit\" value=\"finish this test!\">" );
         }
@@ -205,7 +205,7 @@ public class TaskOverviewServlet extends HttpServlet{
     
     //if there are no tasks left, redirect to the last servlet of the cycle
     if( q.getResultList().isEmpty()) { 
-      destination = "http://localhost:8330/html-files/finishedTest.html";
+      destination = "http://localhost:8080/html-files/finishedTest.html";
       Query q3 = em.createQuery("SELECT u FROM QuestionaireItem u WHERE testId "
           + "= :tId AND location = :taskCounter");
       q3.setParameter("tId", tst);
@@ -214,7 +214,7 @@ public class TaskOverviewServlet extends HttpServlet{
       
       qItem = (QuestionaireItem) q3.getSingleResult();
     } else {  //if there are tasks left, continue here
-      destination = "http://localhost:8330/html-files/taskOverview.html";
+      destination = "http://localhost:8080/html-files/taskOverview.html";
       t = l.get(0);
       session.setAttribute("taskType", t.getType());
     }

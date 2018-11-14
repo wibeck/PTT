@@ -36,6 +36,10 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 
 @WebServlet("/save")
 public class EventPersistorServlet extends HttpServlet {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   @PersistenceContext
   private EntityManager em;
   @Resource
@@ -52,7 +56,7 @@ public class EventPersistorServlet extends HttpServlet {
     session = request.getSession();
     
     String reqBody = readRequestBody(request);
-    Test tst = (Test) request.getSession().getAttribute("testId");
+    
     try {
 
       response.setContentType("text/html");

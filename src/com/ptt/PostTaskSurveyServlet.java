@@ -115,7 +115,7 @@ public class PostTaskSurveyServlet extends HttpServlet{
     URL url1;
     Document doc = null;
     try {
-      url1 = new URL("http://localhost:8330/html-files/" 
+      url1 = new URL("http://localhost:8080/html-files/" 
       + renderContent + ".html");
       URLConnection conn1 = url1.openConnection();
       conn1.connect();
