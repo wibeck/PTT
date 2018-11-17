@@ -33,6 +33,7 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import com.markupGenerator.MarkupGeneratorRemote;
 import com.ptt.entities.QuestionaireAnswer;
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Task;
@@ -79,8 +80,7 @@ public class TaskOverviewServlet extends HttpServlet{
   private QuestionaireItem qItem = null;
   private Test tst;
   private Tester tester;
-  @Inject
-  private MarkupGeneratorBean mG;
+  
   
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
@@ -144,11 +144,19 @@ public class TaskOverviewServlet extends HttpServlet{
   private Document getRenderDocument(String destination) {
     
     Document doc = null;
+    InitialContext context2;
     
+      try {
+        context2 = new InitialContext();
+        MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
+            context2.lookup("ejb:/Markup2//MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
+          
+          doc = Jsoup.parse(mG.generateDocumentFromUrl(destination));
+      } catch (NamingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       
-      String render = mG.generateDocumentFromUrl(destination);
-      
-      doc = Jsoup.parse(render);
       if(destination.equals("http://localhost:8330/html-files/taskOverview.html")) {
         doc.getElementById("taskDescription").append(t.getDescription());
       } else {

@@ -31,7 +31,7 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-
+import com.markupGenerator.MarkupGeneratorRemote;
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Test;
 import com.ptt.utils.MarkupGeneratorBean;
@@ -42,8 +42,7 @@ public class PostTaskSurveyServlet extends HttpServlet{
   private EntityManager em;
   @Resource
   private UserTransaction tx;
-  @Inject
-  MarkupGeneratorBean mG;
+  
   QuestionaireItem qItem;
   /**
    * 
@@ -120,11 +119,19 @@ public class PostTaskSurveyServlet extends HttpServlet{
   private Document getRenderDocument(String renderContent) {
     Document doc = null;
     
-     
-
+    InitialContext context2;
+    try {
+      context2 = new InitialContext();
+      MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
+          context2.lookup("ejb:/Markup2//MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
       String render = mG.generateDocumentFromUrl(renderContent);
       
       doc = Jsoup.parse(render);
+    } catch (NamingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+      
       doc.getElementById("postTaskQuestions").html(qItem.getHtml() 
           + "<input type=\"submit\" value=\"let's go!\">");
 

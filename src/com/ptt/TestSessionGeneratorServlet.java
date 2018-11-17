@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -27,7 +29,7 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-
+import com.markupGenerator.MarkupGeneratorRemote;
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Test;
 import com.ptt.entities.TestSession;
@@ -44,8 +46,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   @Resource
   private UserTransaction tx;
   QuestionaireItem qItem ;
-  @Inject
-  MarkupGeneratorBean mG;
+  
   
   @Logged
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -148,11 +149,20 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   
   private Document getRenderDocument() {
     Document doc = null;
- 
+      InitialContext context2;
+      try {
+        context2 = new InitialContext();
+        MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
+            context2.lookup("ejb:/Markup2//MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
 
-      doc = Jsoup.parse(mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html"));
+        doc = Jsoup.parse(mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html"));
+        
+        doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
+      } catch (NamingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       
-      doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
       
     
     return doc;
