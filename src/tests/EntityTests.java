@@ -19,7 +19,6 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import org.apache.derby.client.ClientDataSourceFactory;
 import org.apache.derby.jdbc.ClientDataSource;
 import org.junit.jupiter.api.Test;
 

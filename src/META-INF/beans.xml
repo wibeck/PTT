@@ -1,0 +1,5 @@
+<beans>
+    <interceptors>
+    	<class>com.ptt.utils.LoggedInterceptor</class>
+    </interceptors>
+</beans>

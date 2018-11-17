@@ -1,6 +1,6 @@
 <persistence>
     <persistence-unit name="TaskManagement">
-        <description>This unit manages task contents and Questionaire-setups.</description>
+        <description>This unit manages task contents and questionaire-setups.</description>
         <jta-data-source>java:/MySqlDS</jta-data-source>
         <jar-file>PTT2.war</jar-file>
         <class>com.ptt.entities.EventLog</class>

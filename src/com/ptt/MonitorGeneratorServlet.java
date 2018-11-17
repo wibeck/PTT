@@ -78,7 +78,7 @@ public class MonitorGeneratorServlet extends HttpServlet {
       response.addCookie(taskCounter);
       response.addCookie(taskType);
       response.addCookie(entryP);
-      response.sendRedirect("http://localhost:8080/html-files/Monitor.html");
+      response.sendRedirect("http://localhost:8330/html-files/Monitor.html");
       
   } catch (IOException e) {
     // TODO Auto-generated catch block

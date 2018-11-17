@@ -1,17 +1,12 @@
 package com.ptt;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+
 import java.time.LocalDateTime;
-import java.util.Properties;
-import java.util.Scanner;
+
 
 import javax.annotation.Resource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -32,10 +27,13 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Test;
 import com.ptt.entities.TestSession;
 import com.ptt.entities.Tester;
+import com.ptt.utils.Logged;
+import com.ptt.utils.MarkupGeneratorBean;
 
 @WebServlet("/test")
 public class TestSessionGeneratorServlet extends HttpServlet {
@@ -46,7 +44,10 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   @Resource
   private UserTransaction tx;
   QuestionaireItem qItem ;
+  @Inject
+  MarkupGeneratorBean mG;
   
+  @Logged
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     
     if(!request.getSession().isNew()) {
@@ -65,7 +66,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       q.setParameter("tId", tst);
     
       qItem = (QuestionaireItem) q.getSingleResult();
-    
+      
       ServletOutputStream out = response.getOutputStream();
 
       Document doc = getRenderDocument();
@@ -146,28 +147,15 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   }
   
   private Document getRenderDocument() {
-    URL url;
     Document doc = null;
-    try {
-      url = new URL("http://localhost:8080/html-files/intro.html");
-      URLConnection conn = url.openConnection();
-      conn.connect();
+ 
+
+      doc = Jsoup.parse(mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html"));
       
-      Scanner s = new Scanner(url.openStream());
-      String render = "";
-      while(s.hasNextLine()) {
-        render += s.nextLine(); //predefinded survey to be inserted as innerhtml of #demographicForm
-      }
-      doc = Jsoup.parse(render);
       doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
-      s.close();
-    } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+      
+    
     return doc;
   }
+  
 }

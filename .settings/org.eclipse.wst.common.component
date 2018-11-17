@@ -1,29 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-            
+                        
+    
+    
+    
     
     <wb-module deploy-name="PTT2-0.0.1-SNAPSHOT">
+                                
+        
+        
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
-                        
+                                                
+        
+        
+        
         
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
-                        
+                                                
+        
+        
+        
         
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-                
         <dependent-module archiveName="jboss-as-ejb-remote-server-side-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/example/example">
-                        
             <dependency-type>uses</dependency-type>
-                    
         </dependent-module>
-                        
+                                                
+        
+        
+        
         
         <property name="context-root" value="PTT2"/>
-                        
+                                                
+        
+        
+        
         
         <property name="java-output-path" value="/PTT2/build/classes"/>
-                    
+                                            
+    
+    
+    
     
     </wb-module>
-        
+                    
+
+
+
 
 </project-modules>

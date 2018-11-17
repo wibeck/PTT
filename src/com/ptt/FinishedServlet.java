@@ -49,7 +49,6 @@ public class FinishedServlet extends HttpServlet {
   private QuestionaireItem qItem;
   private Tester tester;
   private HttpSession session;
-  private URL url; 
   
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     
@@ -65,12 +64,9 @@ public class FinishedServlet extends HttpServlet {
         session.removeAttribute("testId"); 
         session.removeAttribute("testerId");
         session.removeAttribute("taskCounter");
-        
-        ServletOutputStream out = response.getOutputStream();
-        response.setContentType("text/html");
-        String render = getRenderString();
+
         tx.commit();
-        out.write(render.getBytes());
+        response.sendRedirect("http://localhost:8330/html-files/theEnd.html");
         
       } catch (MalformedURLException e) {
         // TODO Auto-generated catch block
@@ -128,29 +124,5 @@ public class FinishedServlet extends HttpServlet {
       qAnswer.setValue(ans);
       qAnswer.setItemId(qItem);
       em.persist(qAnswer);
-    }
-    
-    private String getRenderString() {
-      String render = "";
-      try {
-        url = new URL("http://localhost:8080/html-files/theEnd.html");
-        URLConnection conn1 = url.openConnection();
-        conn1.connect();
-        Scanner s = new Scanner(url.openStream());
-        
-        while(s.hasNextLine()) {
-          render += s.nextLine(); 
-        }
-        s.close();
-      } catch (MalformedURLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      
-      
-      return render;
     }
 }

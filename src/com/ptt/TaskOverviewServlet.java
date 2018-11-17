@@ -10,6 +10,10 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -35,9 +39,7 @@ import com.ptt.entities.Task;
 import com.ptt.entities.TaskKey;
 import com.ptt.entities.Test;
 import com.ptt.entities.Tester;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
+import com.ptt.utils.MarkupGeneratorBean;
 
 
 @WebServlet("/overview")
@@ -77,7 +79,8 @@ public class TaskOverviewServlet extends HttpServlet{
   private QuestionaireItem qItem = null;
   private Test tst;
   private Tester tester;
-  
+  @Inject
+  private MarkupGeneratorBean mG;
   
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
@@ -139,38 +142,25 @@ public class TaskOverviewServlet extends HttpServlet{
   }
   
   private Document getRenderDocument(String destination) {
-    URL url;
+    
     Document doc = null;
-    try {
-      url = new URL(destination);
-      URLConnection conn1 = url.openConnection();
-      conn1.connect();
-      Scanner s = new Scanner(url.openStream());
-     
-      String render = "";
+    
       
-      while(s.hasNextLine()) {
-        render += s.nextLine(); 
-      }
+      String render = mG.generateDocumentFromUrl(destination);
       
       doc = Jsoup.parse(render);
-      if(destination.equals("http://localhost:8080/html-files/taskOverview.html")) {
+      if(destination.equals("http://localhost:8330/html-files/taskOverview.html")) {
         doc.getElementById("taskDescription").append(t.getDescription());
       } else {
-        if(destination.equals("http://localhost:8080/html-files/finishedTest.html")) {
+        if(destination.equals("http://localhost:8330/html-files/finishedTest.html")) {
           doc.getElementById("postTestQuestions").append(qItem.getHtml() 
               + "<input type=\"submit\" value=\"finish this test!\">" );
         }
+       
       }
-    } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+      return doc;
 
-    return doc;
+    
   }
   
   private void persistFormData(HttpServletRequest request) {
@@ -205,7 +195,7 @@ public class TaskOverviewServlet extends HttpServlet{
     
     //if there are no tasks left, redirect to the last servlet of the cycle
     if( q.getResultList().isEmpty()) { 
-      destination = "http://localhost:8080/html-files/finishedTest.html";
+      destination = "http://localhost:8330/html-files/finishedTest.html";
       Query q3 = em.createQuery("SELECT u FROM QuestionaireItem u WHERE testId "
           + "= :tId AND location = :taskCounter");
       q3.setParameter("tId", tst);
@@ -214,7 +204,7 @@ public class TaskOverviewServlet extends HttpServlet{
       
       qItem = (QuestionaireItem) q3.getSingleResult();
     } else {  //if there are tasks left, continue here
-      destination = "http://localhost:8080/html-files/taskOverview.html";
+      destination = "http://localhost:8330/html-files/taskOverview.html";
       t = l.get(0);
       session.setAttribute("taskType", t.getType());
     }

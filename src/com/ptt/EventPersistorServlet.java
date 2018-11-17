@@ -32,7 +32,6 @@ import com.ptt.entities.Task;
 import com.ptt.entities.Test;
 import com.ptt.entities.TestSession;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 @WebServlet("/save")
 public class EventPersistorServlet extends HttpServlet {
