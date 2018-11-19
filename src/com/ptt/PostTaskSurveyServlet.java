@@ -34,7 +34,6 @@ import org.jsoup.nodes.Document;
 import com.markupGenerator.MarkupGeneratorRemote;
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Test;
-import com.ptt.utils.MarkupGeneratorBean;
 
 @WebServlet("/finish")
 public class PostTaskSurveyServlet extends HttpServlet{
