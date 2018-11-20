@@ -95,9 +95,16 @@ public class TaskOverviewServlet extends HttpServlet{
         //Check if there are form-inputs to persist from previous (post-task) survey
         persistFormData(request);
       }
-      
+      int tC =  0;
       String tcHelp = (String) session.getAttribute("taskCounter");
-      int tC = Integer.parseInt(tcHelp) + 1;
+      
+      if(session.getAttribute("terminated") != null && (boolean) session.getAttribute("terminated")) {
+        tC = Integer.parseInt(tcHelp);
+        session.removeAttribute("terminated");
+      } else {
+        tC = Integer.parseInt(tcHelp) + 1;
+      }
+      
       tcHelp = "" + tC;
       session.setAttribute("taskCounter", tcHelp);
       
@@ -109,7 +116,7 @@ public class TaskOverviewServlet extends HttpServlet{
       Document doc = getRenderDocument(destination);
       tx.commit();
       //conn.close();
-      out.write(doc.html().getBytes());
+      out.write((doc.html() +request.getRequestURL().toString()).getBytes());
 
     } catch (IOException e) {
       // TODO Auto-generated catch block

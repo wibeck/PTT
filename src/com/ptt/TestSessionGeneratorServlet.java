@@ -70,20 +70,12 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       qItem = (QuestionaireItem) q.getSingleResult();
       
       ServletOutputStream out = response.getOutputStream();
-      InitialContext context2;
-      Document doc = null ;
-      try {
-        context2 = new InitialContext();
-        MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
-            context2.lookup("ejb:/Markup2//MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
+      MarkupGenerator mG = new MarkupGenerator();
         String render = mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html");
-        doc = Jsoup.parse(render);
+       Document doc = Jsoup.parse(render);
         
         doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
-      } catch (NamingException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+     
 
       
       
@@ -166,7 +158,7 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     Document doc = null;
     
       
-        MarkupGenerator mG = new MarkupGenerator();
+    MarkupGenerator mG = new MarkupGenerator();
 
         doc = Jsoup.parse(mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html"));
         
