@@ -35,6 +35,7 @@ import com.ptt.entities.Test;
 import com.ptt.entities.TestSession;
 import com.ptt.entities.Tester;
 import com.ptt.utils.Logged;
+import com.ptt.utils.MarkupGenerator;
 
 
 @WebServlet("/test")
@@ -163,19 +164,14 @@ public class TestSessionGeneratorServlet extends HttpServlet {
   
   private Document getRenderDocument() {
     Document doc = null;
-      InitialContext context2;
-      try {
-        context2 = new InitialContext();
-        MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
-            context2.lookup("java:global//Markup2/MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
+    
+      
+        MarkupGenerator mG = new MarkupGenerator();
 
         doc = Jsoup.parse(mG.generateDocumentFromUrl("http://localhost:8330/html-files/intro.html"));
         
         doc.getElementById("pretestform").html(qItem.getHtml() + "<input type=\"submit\" value=\"let's go!\">");
-      } catch (NamingException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      
       
       
     

@@ -40,6 +40,7 @@ import com.ptt.entities.Task;
 import com.ptt.entities.TaskKey;
 import com.ptt.entities.Test;
 import com.ptt.entities.Tester;
+import com.ptt.utils.MarkupGenerator;
 
 
 
@@ -144,18 +145,13 @@ public class TaskOverviewServlet extends HttpServlet{
   private Document getRenderDocument(String destination) {
     
     Document doc = null;
-    InitialContext context2;
+   
     
-      try {
-        context2 = new InitialContext();
-        MarkupGeneratorRemote mG = (MarkupGeneratorRemote) 
-            context2.lookup("ejb:/Markup2//MarkupGeneratorBean!com.markupGenerator.MarkupGeneratorRemote");
+    
+    MarkupGenerator mG = new MarkupGenerator();
           
           doc = Jsoup.parse(mG.generateDocumentFromUrl(destination));
-      } catch (NamingException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      
       
       if(destination.equals("http://localhost:8330/html-files/taskOverview.html")) {
         doc.getElementById("taskDescription").append(t.getDescription());
