@@ -13,6 +13,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
@@ -113,6 +114,13 @@ public class PostTaskSurveyServlet extends HttpServlet{
     } catch (HeuristicRollbackException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    } catch(PersistenceException e) {
+      try {
+        response.sendRedirect("http://localhost:8330/PTT2/redir");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
     }
   }
   

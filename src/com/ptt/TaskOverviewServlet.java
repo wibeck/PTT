@@ -16,6 +16,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
@@ -33,11 +34,10 @@ import javax.transaction.UserTransaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import com.markupGenerator.MarkupGeneratorRemote;
+
 import com.ptt.entities.QuestionaireAnswer;
 import com.ptt.entities.QuestionaireItem;
 import com.ptt.entities.Task;
-import com.ptt.entities.TaskKey;
 import com.ptt.entities.Test;
 import com.ptt.entities.Tester;
 import com.ptt.utils.MarkupGenerator;
@@ -142,6 +142,13 @@ public class TaskOverviewServlet extends HttpServlet{
     } catch (HeuristicRollbackException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }catch(PersistenceException e) {
+      try {
+        response.sendRedirect("http://localhost:8330/PTT2/redir");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
     }
   }
   

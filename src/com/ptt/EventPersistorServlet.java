@@ -1,20 +1,13 @@
 package com.ptt;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
-
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +20,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ptt.entities.EventLog;
 import com.ptt.entities.Task;
 import com.ptt.entities.Test;
@@ -90,10 +85,10 @@ public class EventPersistorServlet extends HttpServlet {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IllegalStateException e) {
-      // TODO Auto-generated catch block
+      // sendRedirect to a fallback page
       e.printStackTrace();
     } catch (RollbackException e) {
-      // TODO Auto-generated catch block
+      // send-redirect to a fallback page
       e.printStackTrace();
     } catch (HeuristicMixedException e) {
       // TODO Auto-generated catch block
@@ -103,6 +98,13 @@ public class EventPersistorServlet extends HttpServlet {
       e.printStackTrace();
     } catch (NullPointerException e) {
       e.printStackTrace();
+    }catch(PersistenceException e) {
+      try {
+        response.sendRedirect("http://localhost:8330/PTT2/redir");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
     }
     
    
@@ -112,13 +114,23 @@ public class EventPersistorServlet extends HttpServlet {
   
   //to be parallelized
   private EventLog parseToEventLog(String event) {
-    String[] details = event.split(" ");
+	  ObjectMapper objectMapper = new ObjectMapper();
+	  JsonNode rootNode = null;
+	//create JsonNode
+	try {
+		rootNode = objectMapper.readTree(event.getBytes());
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+	
     EventLog res = new EventLog();
-    res.setEvent(details[0]);
-    res.setElement(details[1]);
-    res.setElementIndex(Integer.parseInt(details[2]));
-    res.setUrl(details[3]);
-    res.setTime(Integer.parseInt(details[4]));
+    res.setEvent(rootNode.get("event").asText());
+    res.setElement(rootNode.get("element").asText());
+    res.setElementIndex(rootNode.get("elementIndex").asInt());
+    res.setUrl(rootNode.get("url").asText());
+    res.setTime(rootNode.get("time").asInt());
     res.setSeqOrder(seqOrder);
     res.setTaskId(task);
     res.setSessionID(tSession);

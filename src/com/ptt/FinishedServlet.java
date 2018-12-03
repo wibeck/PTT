@@ -13,6 +13,7 @@ import java.util.function.BinaryOperator;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
@@ -95,6 +96,13 @@ public class FinishedServlet extends HttpServlet {
       } catch (HeuristicRollbackException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
+      } catch(PersistenceException e) {
+        try {
+          response.sendRedirect("http://localhost:8330/html-files/TestSystemNotRunning.html");
+        } catch (IOException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
       }
       
       

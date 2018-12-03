@@ -11,6 +11,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
@@ -82,10 +83,15 @@ public class TestSessionGeneratorServlet extends HttpServlet {
       out.write(doc.html().getBytes());
       
     } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
+      try {
+        response.sendRedirect("http://localhost:8330/html-files/TestSystemNotRunning.html");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      //send redirect to a fallback page
       e.printStackTrace();
     }  catch (SecurityException e) {
       // TODO Auto-generated catch block
@@ -99,7 +105,21 @@ public class TestSessionGeneratorServlet extends HttpServlet {
     } catch (SystemException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } 
+    } catch(PersistenceException e) {
+      try {
+        response.sendRedirect("http://localhost:8330/html-files/TestSystemNotRunning.html");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    } catch (IndexOutOfBoundsException e ) {
+      try {
+        response.sendRedirect("http://localhost:8330/html-files/NoSuchTest.html");
+      } catch (IOException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    }
 
   }
   /**
